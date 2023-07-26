@@ -1,13 +1,24 @@
-import mongoose from "mongoose";
-import { MessageSchema } from "./message";
-import { UserSchema } from "./user";
+import { Schema, model, Types, Model } from "mongoose";
+import { Message, MessageSchema } from "./message";
+import { User, UserSchema } from "./user";
 
-const Schema = mongoose.Schema;
+// Document definition
+interface Conversation {
+  messages: [];
+  users: [];
+}
+// TMethodsAndOverrides
+type ConversationDocumentProps = {
+  users: Types.DocumentArray<User>;
+  messages: Types.DocumentArray<Message>;
+}
 
-const ConversationSchema = new Schema({
-  messages: [ MessageSchema ],
-  users: [ UserSchema ]
+type ConversationModelType = Model<Conversation, {}, ConversationDocumentProps>
+
+const ConversationSchema = new Schema<Conversation, ConversationModelType>({
+  users: [ UserSchema ],
+  messages: [ MessageSchema ]
 })
 
-const Conversation = mongoose.model("Conversation", ConversationSchema);
-export { Conversation }
+const ConversationModel = model<Conversation, ConversationModelType>("Conversation", ConversationSchema);
+export { ConversationModel }

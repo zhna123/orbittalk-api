@@ -1,4 +1,4 @@
-import { User } from "../models/user";
+import { UserModel } from "../models/user";
 import expressAsyncHandler from "express-async-handler";
 
 // Get user details by id

@@ -1,8 +1,16 @@
-import mongoose from "mongoose";
+import { Schema, Types, Model } from "mongoose";
 
-const Schema = mongoose.Schema;
+// Subdocument definition
+interface Message {
+  _id: Types.ObjectId;
+  content: string;
+  sender: Types.ObjectId;
+  image_path?: string;
+  original_name?: string;
+  date_time: Date
+}
 
-const MessageSchema = new Schema({
+const MessageSchema = new Schema<Message, Model<Message>>({
   content: { type: String, required: true },
   sender: { type: Schema.Types.ObjectId, ref: "User", required: true },
   image_path: { type: String }, // optional
@@ -10,5 +18,4 @@ const MessageSchema = new Schema({
   date_time: { type: Date, required: true },
 })
 
-const Message = mongoose.model("Message", MessageSchema);
 export { Message, MessageSchema }

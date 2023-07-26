@@ -1,4 +1,4 @@
-import { Conversation } from "../models/conversation";
+import { ConversationModel } from "../models/conversation";
 import expressAsyncHandler from "express-async-handler";
 
 // Get a conversation by id

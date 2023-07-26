@@ -1,26 +1,27 @@
-require('dotenv').config()
+import dotenv from 'dotenv';
+dotenv.config();
 
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+import express, { Express, Request, Response } from 'express';
+import createHttpError from 'http-errors'
+import path from 'path'
+import cookieParser from 'cookie-parser'
+import logger from 'morgan'
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+import { router as indexRouter } from './routes/index'
+import { router as usersRouter } from './routes/users'
+import { router as conversationsRouter } from './routes/conversations'
 
-var app = express();
+const app: Express = express();
 
 // Set up mongoose connection
-const mongoose = require("mongoose");
+import mongoose  from 'mongoose';
 mongoose.set("strictQuery", false);
 const mongoDB = process.env.MONGO_URI;
 
 main().catch((err) => console.log(err));
 async function main() {
-  await mongoose.connect(mongoDB);
+  await mongoose.connect(mongoDB!);
 }
-
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -30,14 +31,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/conversations', conversationsRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+  next(createHttpError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function(err: any, req: Request, res: Response, next: any) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

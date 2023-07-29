@@ -13,6 +13,29 @@ Backend REST API for Orbit Talk app.
 
 `npm run serverstart`
 
+### Encryption
+* `npm install bcryptjs`
+
+### Authentication & Authorization
+
+* Used passportJS LocalStrategy for user authorization
+* JWT Token and Refresh Token Authentication
+* Implemented token blacklist (saved in DB)
+
+Library used:
+* `npm install passport`
+* `npm install passport-local`
+* `npm install jsonwebtoken`
+
+Tip:
+
+Generate secret keys:
+
+```
+node
+require('crypto').randomBytes(64).toString('hex')
+```
+
 ### Using Typescript
 
 1. Install type definitions

@@ -10,6 +10,7 @@ import logger from 'morgan'
 import { router as indexRouter } from './routes/index'
 import { router as usersRouter } from './routes/users'
 import { router as conversationsRouter } from './routes/conversations'
+import { router as authRouter } from './routes/auth'
 
 const app: Express = express();
 
@@ -30,6 +31,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
+app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/conversations', conversationsRouter)
 

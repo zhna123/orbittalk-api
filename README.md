@@ -5,6 +5,39 @@ Backend REST API for Orbit Talk app.
 * Mongo DB 
 * Mongoose
 
+## Using the REST API
+
+Access the REST API of the server using the following endpoints:
+
+GET:
+
+`/users` - Fetch authenticated user's detail 
+
+`/conversations` - Fetch all conversations of the authenticated user 
+
+`/conversations/:id` - Get a conversation by its id
+
+POST: 
+
+`/sign-up` - user sign up
+
+`/auth/login` - user log in
+
+`/conversations` - Create a new conversation
+
+`/conversations/:id/messages` - Create a new message in a conversation
+
+PUT:
+
+`/users/password` - update user password
+
+`/users/avatar` - update user avatar
+
+DELETE:
+
+`/auth/logout` - user log out
+
+
 ## Schema design
 
 * Store messages directly in Conversation model for simplicity
@@ -20,7 +53,7 @@ Backend REST API for Orbit Talk app.
 
 * Used passportJS LocalStrategy for user authorization
 * JWT Token and Refresh Token Authentication
-* Implemented token blacklist (saved in DB)
+* Implemented token blacklist (saved in DB) for logout
 
 Library used:
 * `npm install passport`

@@ -4,19 +4,23 @@ import { User, UserSchema } from "./user";
 
 // Document definition
 interface Conversation {
+  _id: Types.ObjectId
   messages: [];
-  users: [];
+  userids: [];
 }
 // TMethodsAndOverrides
 type ConversationDocumentProps = {
-  users: Types.DocumentArray<User>;
+  users: Types.DocumentArray<Types.ObjectId>;
   messages: Types.DocumentArray<Message>;
 }
 
 type ConversationModelType = Model<Conversation, {}, ConversationDocumentProps>
 
 const ConversationSchema = new Schema<Conversation, ConversationModelType>({
-  users: [ UserSchema ],
+  userids: [ {
+    type: Schema.Types.ObjectId,
+    ref: 'UserModel'
+  } ],
   messages: [ MessageSchema ]
 })
 

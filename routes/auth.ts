@@ -3,7 +3,9 @@ import * as authController from '../controllers/authController'
 
 const router = express.Router()
 
+// * internal use only *
 // generate new access token
+// authenticate refresh token done in controller function
 router.post('/token', authController.new_token)
 
 // POST user log in

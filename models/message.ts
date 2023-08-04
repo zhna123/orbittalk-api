@@ -1,4 +1,4 @@
-import { Schema, Types, Model } from "mongoose";
+import { Schema, Types, Model, model } from "mongoose";
 
 // Subdocument definition
 interface Message {
@@ -15,7 +15,9 @@ const MessageSchema = new Schema<Message, Model<Message>>({
   sender: { type: Schema.Types.ObjectId, ref: "User", required: true },
   image_path: { type: String }, // optional
   original_name: { type: String},
-  date_time: { type: Date, required: true },
+  date_time: { type: Date, default: Date.now() },
 })
 
-export { Message, MessageSchema }
+const MessageModel = model<Message, Model<Message>>('Message', MessageSchema)
+
+export { Message, MessageSchema, MessageModel }

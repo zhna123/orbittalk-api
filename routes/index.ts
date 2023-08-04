@@ -43,7 +43,7 @@ router.post('/sign-up', [
       email: req.body.email
     })
     if (!errors.isEmpty) {
-      res.status(403).json({...errors.array()})
+      res.status(500).json({...errors.array()})
     } else {
       bcrypt.hash(req.body.password, 10, async(err, hashedPassword) => {
         if (err) {

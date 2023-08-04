@@ -30,7 +30,7 @@ passport.use(
 
 
 export const new_token = expressAsyncHandler(async (req, res, next) => {
-  const { jwtRefresh } = req.body;
+  const { jwtRefresh } = req.cookies;
 
   if (jwtRefresh === null) {
     res.sendStatus(401)
@@ -44,17 +44,21 @@ export const new_token = expressAsyncHandler(async (req, res, next) => {
   }
   // verify refresh token and generate access token
   try {
-    const user = jwt.verify(jwtRefresh, process.env.REFRESH_TOKEN_SECRET!);
+    const user = jwtHelper.verifyJWT(jwtRefresh, process.env.REFRESH_TOKEN_SECRET!);
+    if (user === null) {
+      res.status(403).json({error: 'JWT verification failed.'})
+      return
+    }
     const token = jwtHelper.generateAccessToken(user)
-      const expirationDate = jwtHelper.getExpirationDate()
-      // update jwt token in cookie
-      res.cookie('jwt', token, { 
-        httpOnly: true,
-        secure: true,
-        // sameSite: 'none',
-      });
-      res.cookie('jwtExpiration', expirationDate.toUTCString());
-      res.status(201).json({ success: true });
+    const expirationDate = jwtHelper.getExpirationDate()
+    // update jwt token in cookie
+    res.cookie('jwt', token, { 
+      httpOnly: true,
+      secure: true,
+      // sameSite: 'none',
+    });
+    res.cookie('jwtExpiration', expirationDate.toUTCString());
+    res.status(201).json({ success: true });
   } catch (err) {
     res.sendStatus(403)
   }
@@ -100,7 +104,7 @@ export const log_in = (req: Request, res: Response, next: any) => {
 }
 
 export const log_out = expressAsyncHandler(async (req, res, next) => {
-  const { jwt, jwtRefresh } = req.body;
+  const { jwt, jwtRefresh } = req.cookies;
   const result = await BlacklistModel.findOne({ token: jwt, type: 'ACCESS'}).exec()
   if (result !== null) {
     res.status(401).json({ message: 'Token already invalidated' });

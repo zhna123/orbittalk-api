@@ -3,6 +3,7 @@ import expressAsyncHandler from 'express-async-handler';
 import bcrypt from 'bcryptjs';
 import { body, validationResult } from 'express-validator';
 import { UserModel } from '../models/user';
+import { saveUser } from '../db/dbOps';
 
 const router = express.Router()
 
@@ -42,15 +43,15 @@ router.post('/sign-up', [
       username: req.body.username,
       email: req.body.email
     })
-    if (!errors.isEmpty) {
-      res.status(500).json({...errors.array()})
+    if (!errors.isEmpty()) {
+      res.status(400).json({...errors.array()})
     } else {
       bcrypt.hash(req.body.password, 10, async(err, hashedPassword) => {
         if (err) {
           return next(err)
         } else {
           user.password = hashedPassword;
-          await user.save();
+          await saveUser(user)
           res.status(201).json({msg: 'user created'})
         }
       })

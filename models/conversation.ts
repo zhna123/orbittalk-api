@@ -10,7 +10,7 @@ interface Conversation {
 }
 // TMethodsAndOverrides
 type ConversationDocumentProps = {
-  users: Types.DocumentArray<Types.ObjectId>;
+  userids: Types.DocumentArray<Types.ObjectId>;
   messages: Types.DocumentArray<Message>;
 }
 
@@ -25,4 +25,4 @@ const ConversationSchema = new Schema<Conversation, ConversationModelType>({
 })
 
 const ConversationModel = model<Conversation, ConversationModelType>("Conversation", ConversationSchema);
-export { ConversationModel }
+export { ConversationModel, Conversation }

@@ -9,7 +9,7 @@ interface User {
   avatar_path: string;
   original_name: string;
   is_online: boolean;
-  friends: Types.DocumentArray<User>
+  friends: Types.DocumentArray<Types.ObjectId>
 }
 
 const UserSchema = new Schema<User, Model<User>>({
@@ -22,7 +22,10 @@ const UserSchema = new Schema<User, Model<User>>({
   // friends: [ this ]  // This doesn't work with typescript
 })
 
-UserSchema.add({friends: [UserSchema]}) // default is []
+UserSchema.add({friends: [{
+  type: Schema.Types.ObjectId,
+  ref: 'UserModel'
+}]}) // default is []
 
 const UserModel = model<User, Model<User>>("User", UserSchema);
 export { User, UserModel, UserSchema }

@@ -3,12 +3,13 @@ import { UserModel } from "../models/user";
 import expressAsyncHandler from "express-async-handler";
 import { Result, ValidationError, body, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs'
+import { findUserById, findUserByIdAndUpdate, findUserConversations } from "../db/dbOps";
 
 
 // Get user details by id
 export const user_detail = expressAsyncHandler(async (req, res, next) => {
-  
-  const user = await UserModel.findById(req.authenticatedUser!.userid).exec();
+  const user = await findUserById(req.authenticatedUser!.userid);
+
   if (user === null) {
     const err = new Error("user not found")
     return next(err)
@@ -20,8 +21,8 @@ export const user_detail = expressAsyncHandler(async (req, res, next) => {
 export const user_password = [
 
   body('oldPassword')
-  .custom(async (value, {req}) => {
-    const user = await UserModel.findById(req.authenticatedUser!.userid).exec()
+  .custom(async (value: string, {req}) => {
+    const user = await findUserById(req.authenticatedUser!.userid)
     const result = await bcrypt.compare(value, user!.password)
     if (result) {
       return Promise.resolve(true)
@@ -48,18 +49,18 @@ export const user_password = [
 
   expressAsyncHandler (async(req, res, next) => {
     const errors: Result<ValidationError> = validationResult(req)
-    const user = new UserModel({
-      _id: req.authenticatedUser!.userid
-    })
     if (!errors.isEmpty()) {
-      res.status(500).json({...errors.array()})
+      res.status(400).json({...errors.array()})
     } else {
+      const user = new UserModel({
+        _id: req.authenticatedUser!.userid
+      })
       bcrypt.hash(req.body.password, 10, async(err, hashedPassword) => {
         if (err) {
           return next(err)
         } else {
           user.password = hashedPassword;
-          const theUser = await UserModel.findByIdAndUpdate(req.authenticatedUser?.userid, user, {})
+          const theUser = await findUserByIdAndUpdate(req.authenticatedUser!.userid, user);
           res.status(200).json(theUser)
         }
       })
@@ -71,6 +72,6 @@ export const user_avatar = []
 
 // Get a particular user's conversations
 export const user_conversations = expressAsyncHandler(async (req, res, next) => {
-  const conversations = await ConversationModel.find({userids: req.authenticatedUser!.userid}).exec()
+  const conversations = await findUserConversations(req.authenticatedUser!.userid);
   res.status(200).json(conversations)
 })

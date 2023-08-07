@@ -5,8 +5,9 @@ import bcrypt from 'bcryptjs'
 import expressAsyncHandler from "express-async-handler";
 import { BlacklistModel } from "../models/token_blacklist";
 import { UserModel } from '../models/user'
-import jwt from 'jsonwebtoken'
 import * as jwtHelper from '../lib/jwt'
+import { body, validationResult } from 'express-validator';
+
 
 passport.use(
   new Strategy (async(username, password, done) => {
@@ -64,44 +65,63 @@ export const new_token = expressAsyncHandler(async (req, res, next) => {
   }
 })
 
-export const log_in = (req: Request, res: Response, next: any) => {
-  passport.authenticate('local', {session: false}, (err: any, user: any, info: any, status: any) => {
-    if (err) { return next(err) }
-    if (!user) { 
-      return res.sendStatus(401)
+export const log_in = [
+  body('username')
+  .trim()
+  .isLength({min: 1})
+  .escape()
+  .withMessage('username is required'),
+
+  body('password')
+  .trim()
+  .isLength({min: 1})
+  .escape()
+  .withMessage('password is required'),
+
+  (req: Request, res: Response, next: any) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      res.status(400).json({...errors.array()})
+      return
     }
-    // log in user
-    req.login(user, {session: false}, err => {
+    passport.authenticate('local', {session: false}, (err: any, user: any, info: any, status: any) => {
       if (err) { return next(err) }
-      // generate access token and expiration date
-      const token = jwtHelper.generateAccessToken(user.toJSON())
-      const expirationDate = jwtHelper.getExpirationDate()
+      if (!user) { 
+        return res.sendStatus(401)
+      }
+      // log in user
+      req.login(user, {session: false}, err => {
+        if (err) { return next(err) }
+        // generate access token and expiration date
+        const token = jwtHelper.generateAccessToken(user.toJSON())
+        const expirationDate = jwtHelper.getExpirationDate()
 
-      // Set the token as an HTTP-only cookie
-      res.cookie('jwt', token, { 
-        httpOnly: true,
-        secure: true,
-        // sameSite: 'none',
-      });
+        // Set the token as an HTTP-only cookie
+        res.cookie('jwt', token, { 
+          httpOnly: true,
+          secure: true,
+          // sameSite: 'none',
+        });
 
-      // Set the expiration time in another cookie
-      res.cookie('jwtExpiration', expirationDate.toUTCString());
+        // Set the expiration time in another cookie
+        res.cookie('jwtExpiration', expirationDate.toUTCString());
 
-      // generate refresh token
-      const refreshToken = jwtHelper.generateRefreshToken(user.toJSON())
-      // refreshTokens.push(refreshToken)
+        // generate refresh token
+        const refreshToken = jwtHelper.generateRefreshToken(user.toJSON())
+        // refreshTokens.push(refreshToken)
 
-      // set refresh token as http-only cookie
-      res.cookie('jwtRefresh', refreshToken, { 
-        httpOnly: true,
-        secure: true,
-        // sameSite: 'none',
-      });
+        // set refresh token as http-only cookie
+        res.cookie('jwtRefresh', refreshToken, { 
+          httpOnly: true,
+          secure: true,
+          // sameSite: 'none',
+        });
 
-      return res.status(201).json({ success: true });
-    })
-  })(req, res,  next)
-}
+        return res.status(201).json({ success: true });
+      })
+    })(req, res,  next)
+  }
+]
 
 export const log_out = expressAsyncHandler(async (req, res, next) => {
   const { jwt, jwtRefresh } = req.cookies;

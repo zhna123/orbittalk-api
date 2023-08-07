@@ -4,6 +4,7 @@ Backend REST API for Orbit Talk app.
 * Express
 * Mongo DB 
 * Mongoose
+* Typescript
 
 ## Using the REST API
 
@@ -73,11 +74,11 @@ require('crypto').randomBytes(64).toString('hex')
 
 1. Install type definitions
 
-`npm i -D typescript @types/express @types/node`
+  `npm i -D typescript @types/express @types/node`
 
 2. Generate `tsconfig.json`
 
-`npx tsc --init`
+  `npx tsc --init`
 
 3. Specify `outDir` - eg: `"outDir": "dist",`
 
@@ -85,11 +86,37 @@ require('crypto').randomBytes(64).toString('hex')
 
 5. Install `ts-node`
 
-`npm install -D ts-node`
+  `npm install -D ts-node`
 
 6. Modify start script in `package.json` to use `ts-node`
 
 7. Run app and fix remaining errors
+
+## Testing
+
+* Manual testing with POSTMAN
+
+* Unit Test (Jest + SuperTest)
+
+  `npm test`
+
+  1. Install Jest `npm install --save-dev jest`
+
+  2. Use `ts-jest` 
+  
+    - `npm install --save-dev ts-jest`
+
+    - create jest config file `npx ts-jest config:init`
+
+  3. Install type definitions and import APIs from it `npm install --save-dev @jest/globals`
+
+    - see usage: https://jestjs.io/docs/api#typescript-usage
+
+  4. Add script `"test": "jest --detectOpenHandles"` in package.json
+
+  5. Install SuperTest `npm install supertest --save-dev`
+
+
 
 
 

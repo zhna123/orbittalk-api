@@ -5,6 +5,7 @@ Backend REST API for Orbit Talk app.
 * Mongo DB 
 * Mongoose
 * Typescript
+* Jest (testing)
 
 ## Using the REST API
 
@@ -26,13 +27,13 @@ POST:
 
 `/conversations` - Create a new conversation
 
-`/conversations/:id/messages` - Create a new message in a conversation
-
 PUT:
 
 `/users/password` - update user password
 
 `/users/avatar` - update user avatar
+
+`/conversations/:id/messages` - Create a new message in a conversation
 
 DELETE:
 

@@ -28,7 +28,7 @@ const app = express()
 
 app.use(express.urlencoded({ extended: false }));
 app.use("/conversations", conversationsRouter);
-// TO FIX (can't send userids and messages with request body)
+// TO FIX (can't send userids and messages as json with request body)
 describe('create new conversation', () => {
 
   let server: Server
@@ -48,29 +48,28 @@ describe('create new conversation', () => {
 
   it("returns code 201 with success message", async () => {
 
-    const data = {
-      userids: [
-        authenticatedUserId,
-        "64c288616906366dc56a9999"
-      ],
-      messages: [
-        {
-          content: "first message",
-          sender: authenticatedUserId
-        }
-      ]
-    }
-    
+    const userids = [
+      authenticatedUserId,
+      "64c288616906366dc56a9999"
+    ]
+
+    const encodedUserIds = userids.map(id => `userids=${encodeURIComponent(id)}`).join('&');
+
+    // const messages = [
+    //   {
+    //     content: "first message",
+    //     sender: authenticatedUserId
+    //   }
+    // ]
+  
     const res = await agent
       .post('/conversations')
-      .set('Accept', 'application/json')
-      .set('Content-Type', 'application/json')
-      .send(data)
+      .send(encodedUserIds) // x-www-form-urlencoded format
 
-      console.log(JSON.stringify(res.body.data))
+    console.log(JSON.stringify(res.body.data))
       
     expect(res.statusCode).toEqual(201);
     expect(res.body.msg).toEqual("conversation created")
-    // expect(res.body.data.userids.includes(authenticatedUserId)).toBeTruthy()
+    expect(res.body.data.userids.includes(authenticatedUserId)).toBeTruthy()
   });
 });

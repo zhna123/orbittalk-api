@@ -4,7 +4,7 @@ import { Strategy } from 'passport-local'
 import bcrypt from 'bcryptjs'
 import expressAsyncHandler from "express-async-handler";
 import { BlacklistModel } from "../models/token_blacklist";
-import { UserModel } from '../models/user'
+import { User, UserModel } from '../models/user'
 import * as jwtHelper from '../lib/jwt'
 import { body, validationResult } from 'express-validator';
 
@@ -81,16 +81,17 @@ export const log_in = [
   (req: Request, res: Response, next: any) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      res.status(400).json({...errors.array()})
+      res.status(400).json([...errors.array()])
       return
     }
     passport.authenticate('local', {session: false}, (err: any, user: any, info: any, status: any) => {
+      
       if (err) { return next(err) }
       if (!user) { 
         return res.sendStatus(401)
       }
       // log in user
-      req.login(user, {session: false}, err => {
+      req.login(user, {session: false}, async err => {
         if (err) { return next(err) }
         // generate access token and expiration date
         const token = jwtHelper.generateAccessToken(user.toJSON())
@@ -117,13 +118,23 @@ export const log_in = [
           // sameSite: 'none',
         });
 
-        return res.status(201).json({ success: true });
+        // set online status
+        const authenticatedUser: User = user.toJSON()
+        const updatedUser = await UserModel.findByIdAndUpdate(authenticatedUser._id, {is_online: true}, {})
+        const { password, ...rest } = updatedUser!
+
+        return res.status(201).json({ success: true, data: rest });
       })
     })(req, res,  next)
   }
 ]
 
 export const log_out = expressAsyncHandler(async (req, res, next) => {
+
+  // set online status
+  const authenticatedUser = req.authenticatedUser!
+  await UserModel.findByIdAndUpdate(authenticatedUser.userid, {is_online: false}, {})
+
   const { jwt, jwtRefresh } = req.cookies;
   const result = await BlacklistModel.findOne({ token: jwt, type: 'ACCESS'}).exec()
   if (result !== null) {
@@ -144,5 +155,6 @@ export const log_out = expressAsyncHandler(async (req, res, next) => {
     blacklisted_at: Date.now()
   })
   await BlacklistRefreshToken.save()
+
   res.status(204).json({ message: 'Logout successful' })
 })

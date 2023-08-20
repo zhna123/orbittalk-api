@@ -19,7 +19,13 @@ router.post('/sign-up', [
   .trim()
   .isLength({min: 1})
   .escape()
-  .withMessage('username is required'),
+  .withMessage('username is required')
+  .custom( async value => {
+    const user = await UserModel.findOne({ username: value });
+    if (user) {
+      throw new Error(`User ${value} already exists`);
+    }
+  }),
 
   body('password')
   .trim()
@@ -27,7 +33,7 @@ router.post('/sign-up', [
   .escape()
   .withMessage('password is required'),
 
-  body('passwordConfirmation')
+  body('confirmPwd')
   .custom((value, {req}) => {
     return value === req.body.password
   })
@@ -44,7 +50,7 @@ router.post('/sign-up', [
       email: req.body.email
     })
     if (!errors.isEmpty()) {
-      res.status(400).json({...errors.array()})
+      res.status(400).json([...errors.array()])
     } else {
       bcrypt.hash(req.body.password, 10, async(err, hashedPassword) => {
         if (err) {

@@ -15,6 +15,10 @@ GET:
 
 `/users` - Fetch authenticated user's detail 
 
+`/users/:id` - Fetch a user's detail (used to find friends of the authenticated user)
+
+`/users/:username` - Look up a user by its username (used to look up and add new friend)
+
 `/conversations` - Fetch all conversations of the authenticated user 
 
 `/conversations/:id` - Get a conversation by its id
@@ -34,6 +38,8 @@ PUT:
 `/users/avatar` - update user avatar
 
 `/conversations/:id/messages` - Create a new message in a conversation
+
+`/conversations/messages` - Update all messages in the conversation as read
 
 DELETE:
 

@@ -18,5 +18,6 @@ export async function authenticateToken(req: Request, res: Response, next: any) 
     return res.status(403).json({error: 'JWT verification failed.'})
   }
   req.authenticatedUser = user;
+
   next()
 }

@@ -1,7 +1,7 @@
-import { ConversationModel } from "../models/conversation";
+import { Conversation, ConversationModel } from "../models/conversation";
 import expressAsyncHandler from "express-async-handler";
 import { MessageModel } from "../models/message";
-import { findOneConversation, saveConversation } from "../db/dbOps";
+import { findOneConversation, saveConversation, updateConversation } from "../db/dbOps";
 
 // Get a conversation by id
 export const conversation_detail = expressAsyncHandler(async (req, res, next) => {
@@ -24,7 +24,7 @@ export const conversation_create = expressAsyncHandler(async (req, res, next) =>
   res.status(201).json({msg: 'conversation created', data: conversation})
 })
 
-// POST create a new message in a conversation
+// PUT create a new message in a conversation
 export const message_create = expressAsyncHandler(async (req, res, next) => {
   const conversation = await findOneConversation(req.params.id, req.authenticatedUser!.userid);
   if (conversation === null) {
@@ -33,9 +33,22 @@ export const message_create = expressAsyncHandler(async (req, res, next) => {
   }
   const message = new MessageModel({
     content: req.body.content,
+    date_time: req.body.date_time,
     sender: req.authenticatedUser!.userid,
   })
   conversation.messages.push(message)
   await saveConversation(conversation)
-  res.status(201).json({msg: 'message created', data: conversation})
+  res.status(201).json({msg: 'message created', data: message})
+})
+
+// PUT update a message by id
+export const message_update = expressAsyncHandler(async (req, res, next) => {
+
+  const conversation: Conversation = req.body;
+
+  const messages = conversation.messages;
+  const updatedMessages = messages.map(m => ({...m, "is_read": true}))
+
+  await updateConversation(conversation._id.toString(), {messages: updatedMessages})
+  res.status(200).json({msg: 'message updated'})
 })

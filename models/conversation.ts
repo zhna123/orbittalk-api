@@ -1,12 +1,11 @@
 import { Schema, model, Types, Model } from "mongoose";
 import { Message, MessageSchema } from "./message";
-import { User, UserSchema } from "./user";
 
 // Document definition
 interface Conversation {
   _id: Types.ObjectId
-  messages: [];
-  userids: [];
+  userids: Types.DocumentArray<Types.ObjectId>
+  messages: Message[];
 }
 // TMethodsAndOverrides
 type ConversationDocumentProps = {

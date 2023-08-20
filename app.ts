@@ -6,6 +6,7 @@ import createHttpError from 'http-errors'
 import path from 'path'
 import cookieParser from 'cookie-parser'
 import logger from 'morgan'
+import cors from 'cors'
 
 import { router as indexRouter } from './routes/index'
 import { router as usersRouter } from './routes/users'
@@ -13,6 +14,16 @@ import { router as conversationsRouter } from './routes/conversations'
 import { router as authRouter } from './routes/auth'
 
 const app: Express = express();
+
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+  ],
+  methods: ['GET', 'PUT', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token'],
+  credentials: true,
+  exposedHeaders: ['Authorization']
+}))
 
 // Set up mongoose connection
 import mongoose  from 'mongoose';

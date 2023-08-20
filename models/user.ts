@@ -6,18 +6,20 @@ interface User {
   username: string;
   password: string;
   email: string;
-  avatar_path: string;
-  original_name: string;
+  screen_name: string;
+  avatar: Buffer;
   is_online: boolean;
   friends: Types.DocumentArray<Types.ObjectId>
 }
 
 const UserSchema = new Schema<User, Model<User>>({
-  username: { type: String, required: true },
+  username: { type: String, required: true }, // this is unique
   password: { type: String, required: true},
   email: { type: String, required: true},
-  avatar_path: { type: String, default: './' }, // set a default
-  original_name: { type: String, default: '' },
+  screen_name: { type: String, default: function() {
+    return this.username;
+  }},
+  avatar: { type: Buffer, default: null},
   is_online: { type: Boolean, default: false},
   // friends: [ this ]  // This doesn't work with typescript
 })

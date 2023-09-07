@@ -50,7 +50,7 @@ export const new_token = expressAsyncHandler(async (req, res, next) => {
       res.status(403).json({error: 'JWT verification failed.'})
       return
     }
-    const token = jwtHelper.generateAccessToken(user)
+    const token = jwtHelper.generateAccessToken(user.username, user.userid)
     const expirationDate = jwtHelper.getExpirationDate()
     // update jwt token in cookie
     res.cookie('jwt', token, { 
@@ -94,7 +94,8 @@ export const log_in = [
       req.login(user, {session: false}, async err => {
         if (err) { return next(err) }
         // generate access token and expiration date
-        const token = jwtHelper.generateAccessToken(user.toJSON())
+        const userObj = user.toJSON()
+        const token = jwtHelper.generateAccessToken(userObj.username, userObj._id)
         const expirationDate = jwtHelper.getExpirationDate()
 
         // Set the token as an HTTP-only cookie
@@ -108,7 +109,7 @@ export const log_in = [
         res.cookie('jwtExpiration', expirationDate.toUTCString());
 
         // generate refresh token
-        const refreshToken = jwtHelper.generateRefreshToken(user.toJSON())
+        const refreshToken = jwtHelper.generateRefreshToken(userObj)
         // refreshTokens.push(refreshToken)
 
         // set refresh token as http-only cookie
@@ -117,12 +118,8 @@ export const log_in = [
           secure: true,
           // sameSite: 'none',
         });
-
-        // set online status
-        const authenticatedUser: User = user.toJSON()
-        const updatedUser = await UserModel.findByIdAndUpdate(authenticatedUser._id, {is_online: true}, {})
-        const { password, ...rest } = updatedUser!
-
+       
+        const { password, ...rest } = userObj
         return res.status(201).json({ success: true, data: rest });
       })
     })(req, res,  next)

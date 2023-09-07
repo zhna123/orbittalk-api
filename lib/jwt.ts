@@ -9,9 +9,10 @@ export interface CustomJwtPayload extends JwtPayload {
   userid: string;
 }
 
-export function generateAccessToken(user: any) {
+export function generateAccessToken(username: string, userid: string) {
   // TODO change back to 900
-  return jwt.sign({username: user.username, userid: user._id}, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '900s'})
+  return jwt.sign({username: username, userid: userid}, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '900s'})
+
 }
 
 export function getExpirationDate() {

@@ -20,13 +20,17 @@ const upload_ = multer({ storage: storage, limits: {fileSize: MAX_FILE_SIZE}})
 
 // Get authenticated user detail
 export const auth_user_detail = expressAsyncHandler(async (req, res, next) => {
-  const user = await findUserById(req.authenticatedUser!.userid);
-
-  if (user === null) {
-    const err = new Error("user not found")
-    return next(err)
+  try {
+    const user = await findUserById(req.authenticatedUser!.userid);
+    
+    if (user === null) {
+      const err = new Error("user not found")
+      return next(err)
+    }
+    res.status(200).json(user)
+  } catch (err) {
+    console.log('error when retrieving authenticated user:' + err)
   }
-  res.status(200).json(user)
 })
 
 // Get user details by id
